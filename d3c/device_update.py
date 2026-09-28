@@ -442,6 +442,8 @@ def add_service(device, ip_address, network_protocol, transport_protocol, applic
     """
     if not application_protocol or application_protocol == 'False':
         application_protocol = 'Unspecified'
+    if not port or not port.isdigit():
+        return (False, 'Port must be set with digits.')
 
     try:
         service, created = Service.objects.get_or_create(device=device,
