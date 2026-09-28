@@ -267,11 +267,11 @@ def change_device_exposure(device, value):
             if exposure:
                 device.custom_field_data['exposure'] = exposure
                 device.save()
-                return True
+                return (True, None)
             else:
-                return False
+                return (False, None)
         except Exception as e:
-            return False
+            return (False, str(e))
 
 
 def change_device_safety(device, value):
@@ -440,8 +440,6 @@ def add_service(device, ip_address, network_protocol, transport_protocol, applic
     """
     This function creates a new Service object.
     """
-    result = False
-
     if not application_protocol or application_protocol == 'False':
         application_protocol = 'Unspecified'
 
@@ -457,18 +455,15 @@ def add_service(device, ip_address, network_protocol, transport_protocol, applic
                 an_ip = IPAddress.objects.get(address=ip)
                 service.ipaddresses.add(an_ip)
                 service.save()
-
-        return True
     except Exception as e:
-        return False
+        return (False, str(e))
+    return (True, None)
 
 
 def add_software(device, name, firmware, version):
     """
     This function creates a new Software object.
     """
-    result = True
-
     name = name if name else 'Unspecified'
     version = version if version else 'Unspecified'
     firmware = firmware == "True"
@@ -482,6 +477,6 @@ def add_software(device, name, firmware, version):
                                                                       destination_type=ContentType.objects.get_for_model(Device),
                                                                       destination_id=device.pk)
     except Exception as e:
-        result = False
-    return result
+        return (False, str(e))
+    return (True, None)
 
