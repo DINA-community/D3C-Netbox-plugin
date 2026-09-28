@@ -161,8 +161,7 @@ To enable the netbox debug mode, to get long and detailed tracebacks, add this t
 A default admin account (`admin`/`admin`) is created automatically via the `SUPERUSER_NAME`/`SUPERUSER_EMAIL`/`SUPERUSER_PASSWORD` variables in `docker-ci/env/netbox.env`.
 As with the other default passwords and API keys in this repo's files, this is not suitable for a production environment.
 
-To create an API token set these variables
-
+A API token is also created automatically using the variables
 - `SUPERUSER_API_TOKEN` (40 characters)
 - `SUPERUSER_API_KEY` (12 characters)
 - `API_TOKEN_PEPPER_1` (at least 50 characters)
@@ -175,7 +174,15 @@ However, an important aspect of an installation in a production environment is t
 
 ### Testing
 
-The unit tests of NetBox can be executed via `./docker-ci/test.sh`.
+The project includes Unit tests under `d3c/tests/`.
+
+To run the tests, use:
+
+- `make tests` which starts the stack and runs the tests
+- `./docker-ci/test.sh` does the same in a separate docker stack
+- `docker compose exec netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py test d3c.tests.test_utils.ValidateUriTestCase` to run the specific test `ValidateUriTestCase` in test_utils.py in a running stack
+
+NetBox's own `dcim.tests.test_views.DeviceTypeTestCase` are also used, because D3C overrides NetBox's built-in DeviceType views.
 
 ## Help
 
