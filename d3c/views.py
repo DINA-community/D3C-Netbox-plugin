@@ -1357,14 +1357,15 @@ class CommunicationFindingMap(GetReturnURLMixin, BaseMultiObjectView):
         with transaction.atomic():
             count = 0
             for communication_finding in selected_objects:
-                if communication_finding.has_2_predicted_devices and communication_finding.finding_status == "NEW":
+                if communication_finding.finding_status == "NEW":
                     src, dst = communication_finding.get_matched_device()
                     if src and dst:
+
                         a_comm, created = models.Communication.objects.get_or_create(
                             source_device=Device.objects.get(id=src.id),
                             destination_device=Device.objects.get(id=dst.id),
-                            source_ip_addr=IPAddress.objects.get(address=communication_finding.source_ip + '/32'),
-                            destination_ip_addr=IPAddress.objects.get(address=communication_finding.destination_ip + '/32'),
+                            source_ip_addr=IPAddress.objects.get(address=self._add_ip_address_suffix(communication_finding.source_ip)),
+                            destination_ip_addr=IPAddress.objects.get(address=self._add_ip_address_suffix(communication_finding.destination_ip)),
                             destination_port=communication_finding.destination_port,
                             network_protocol=communication_finding.network_protocol,
                             transport_protocol=communication_finding.transport_protocol,
@@ -1381,6 +1382,14 @@ class CommunicationFindingMap(GetReturnURLMixin, BaseMultiObjectView):
                 messages.success(request, f"Mapped {count} {model_name}")
 
         return redirect(self.get_return_url(request))
+
+    def _add_ip_address_suffix(self, ip_address_string):
+        """Add a /32 to an ip address, if it is missing."""
+        if not ip_address_string:
+            return ip_address_string
+        elif '/' not in ip_address_string:
+            return ip_address_string + '/32'
+        return ip_address_string
 
 class CommunicationFindingReject(GetReturnURLMixin, BaseMultiObjectView):
     """ Handles the request for rejecting CommunicationFindings. """
