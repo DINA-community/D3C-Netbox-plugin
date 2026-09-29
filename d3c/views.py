@@ -494,7 +494,6 @@ class FindingListForDeviceView(View, TableMixin):
 
         error_msgs = []
         for service in groupsData.get('service'):
-            
             ok, err = add_service(self.device, service.get('ip_address'),
                                   service.get('network_protocol'), service.get('transport_protocol'),
                                   service.get('application_protocol'), service.get('port'))
@@ -504,7 +503,7 @@ class FindingListForDeviceView(View, TableMixin):
         self.handle_error_messages(request, 'Error(s) in add_service: ', error_msgs)
 
         error_msgs = []
-        for software in groupsData.get('software'): 
+        for software in groupsData.get('software'):
             ok, err = add_software(self.device, software.get('software_name'), software.get('is_firmware'), software.get('version'))
             result_software &= ok
             if not ok:
