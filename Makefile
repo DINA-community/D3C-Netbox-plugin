@@ -10,8 +10,7 @@ lint:
 
 tests:
 	docker compose up -d --build --wait --wait-timeout 600
-	# Include dcim.tests.test_views.DeviceTypeTestCase because d3c overrides DeviceType add/edit views
-	docker compose exec netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py test d3c dcim.tests.test_views.DeviceTypeTestCase || (docker compose logs --no-color netbox; docker compose down --volumes; exit 1)
+	docker compose exec netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py test d3c || (docker compose logs --no-color netbox; docker compose down --volumes; exit 1)
 	docker compose down --volumes
 
 smoke-test:
