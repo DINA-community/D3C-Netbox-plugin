@@ -473,7 +473,10 @@ class FindingListForDeviceView(View, TableMixin):
         if device_status:
             result_device &= change_device_status(self.device, device_status)
         if device_exposure:
-            result_device &= change_device_exposure(self.device, device_exposure)
+            ok, err = change_device_exposure(self.device, device_exposure)
+            result_device &= ok
+            if err:
+                messages.error(request, f'Error in change_device_exposure: {err}')
         if device_site:
             result_device &= change_device_site(self.device, device_site)
         if device_rack:
@@ -489,13 +492,23 @@ class FindingListForDeviceView(View, TableMixin):
         if device_hcpe:
             result_device &= change_device_hcpe(self.device, device_hcpe)
 
+        error_msgs = []
         for service in groupsData.get('service'):
-            result_service &= add_service(self.device, service.get('ip_address'),
-                                          service.get('network_protocol'), service.get('transport_protocol'),
-                                          service.get('application_protocol'), service.get('port'))
+            ok, err = add_service(self.device, service.get('ip_address'),
+                                  service.get('network_protocol'), service.get('transport_protocol'),
+                                  service.get('application_protocol'), service.get('port'))
+            result_service &= ok
+            if not ok:
+                error_msgs.append(err)
+        self.handle_error_messages(request, 'Error(s) in add_service: ', error_msgs)
 
+        error_msgs = []
         for software in groupsData.get('software'):
-            result_software &= add_software(self.device, software.get('software_name'), software.get('is_firmware'), software.get('version'))
+            ok, err = add_software(self.device, software.get('software_name'), software.get('is_firmware'), software.get('version'))
+            result_software &= ok
+            if not ok:
+                error_msgs.append(err)
+        self.handle_error_messages(request, 'Error(s) in add_software: ', error_msgs)
 
         if result_device and result_role and result_service and result_software:
             msg = f'Updated Device'
@@ -511,6 +524,13 @@ class FindingListForDeviceView(View, TableMixin):
 
         fullPath = request.get_full_path()
         return redirect(fullPath)
+
+    def handle_error_messages(self, request, prefix_msg, error_msgs):
+        if len(error_msgs) > 3:
+            error_msgs = error_msgs[0:3]
+            error_msgs.append('...')
+        if error_msgs:
+            messages.error(request, f'{prefix_msg}{", ".join(error_msgs)}')
 
 
 @register_model_view(models.DeviceFinding, name='add', detail=False)
@@ -702,7 +722,10 @@ class DeviceFindingApply(generic.ObjectEditView):
                     device_exposure_option = form.cleaned_data['device_exposure'] or '0'
                     if device_exposure_option != '0':
                         new_device_exposure = choices['exposure_c'][int(device_exposure_option)][1]
-                        result_device &= change_device_exposure(self.device, new_device_exposure)
+                        ok, err = change_device_exposure(self.device, new_device_exposure)
+                        result_device &= ok
+                        if err:
+                            messages.error(request, f'Error in change_device_exposure: {err}')
 
                     device_site_option = form.cleaned_data['device_site'] or '0'
                     if device_site_option != '0':
@@ -744,14 +767,18 @@ class DeviceFindingApply(generic.ObjectEditView):
 
                     service_option = form.cleaned_data.get('add_service', False)
                     if service_option:
-                        result_service = add_service(self.device, self.finding.ip_address,
-                                                     self.finding.network_protocol, self.finding.transport_protocol,
-                                                     self.finding.application_protocol, self.finding.port)
+                        result_service, err = add_service(self.device, self.finding.ip_address,
+                                                          self.finding.network_protocol, self.finding.transport_protocol,
+                                                          self.finding.application_protocol, self.finding.port)
+                        if not result_service:
+                            messages.error(request, f'Error in add_service: {err}')
 
                     software_option = form.cleaned_data.get('add_software', False)
                     if software_option:
-                        result_software = add_software(self.device, self.finding.software_name,
-                                                       self.finding.is_firmware, self.finding.version)
+                        result_software, err = add_software(self.device, self.finding.software_name,
+                                                            self.finding.is_firmware, self.finding.version)
+                        if not result_software:
+                            messages.error(request, f'Error in add_software: {err}')
 
                     if result_device and result_role and result_service and result_software:
                         try:
