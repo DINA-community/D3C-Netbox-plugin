@@ -808,6 +808,7 @@ class CommunicationFinding(NetBoxModel):
 
         self.has_2_predicted_devices = self.has_predicted_src_device and self.has_predicted_dst_device
 
+
         if save:
             self.save()
 
@@ -843,6 +844,8 @@ def communicationfinding_check_asignment(sender, instance, **kwargs):
                 CommunicationFinding.objects.filter(pk=instance.pk).update(has_predicted_dst_device=True)
             else:
                 CommunicationFinding.objects.filter(pk=instance.pk).update(has_predicted_dst_device=False)
+        new_has_2_predicted_devices = bool(src) and bool(dst)
+        CommunicationFinding.objects.filter(pk=instance.pk).update(has_2_predicted_devices=new_has_2_predicted_devices)
     except BaseException as e:
         pass
 
