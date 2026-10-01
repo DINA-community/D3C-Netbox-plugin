@@ -445,19 +445,21 @@ def add_service(device, ip_address, network_protocol, transport_protocol, applic
 
     if not transport_protocol or not port:
         # NetBox requites both a protocol and a port
-        return False, "Transport-protocol and Port required."
+        return False
+
     try:
         port_number = int(port)
     except (TypeError, ValueError):
-        return False, "Port is not an integer."
+        return False
+
+    port_mapping = f'{transport_protocol.lower()}/{port_number}'
 
     try:
         device_content_type = ContentType.objects.get_for_model(Device)
         service, created = Service.objects.get_or_create(parent_object_type=device_content_type,
                                                          parent_object_id=device.pk,
                                                          name=application_protocol,
-                                                         protocol=transport_protocol.lower(),
-                                                         ports=[port_number])
+                                                         port_mappings=[port_mapping])
         ip = get_ip(ip_address)
         if ip and created:
             ips = IPAddress.objects.filter(address=ip)
