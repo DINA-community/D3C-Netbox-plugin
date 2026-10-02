@@ -1,5 +1,5 @@
 """
-Plugin initialization: create the custom fiels and custom fields choice sets
+Plugin initialization: create the custom fields and custom fields choice sets
 
 This is called in post_migrate by Django
 """

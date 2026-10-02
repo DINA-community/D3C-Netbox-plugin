@@ -107,7 +107,7 @@ The Plugin can be added to any existing or new setup of netbox-docker by followi
 
    The default docker-compose setup executes this step by default on startup, with the `d3c-example-data` service.
 
-   In other setups, use this command to omport the example data:
+   In other setups, use this command to import the example data:
 
    ```bash
    docker compose exec netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py d3c_example_data
