@@ -105,7 +105,7 @@ def get_sug(rsp, string_normalizer, string_checker, device_attr, device_value, f
         result_normalizer = string_normalizer.normalize(finding_value, device_attr)
 
         if result_normalizer:
-            return [(0, device_value), (1, result_normalizer)] if result_normalizer != device_value else None
+            return [(0, device_value), (1, result_normalizer)]
         elif string_checker:
             result_checker = string_checker.check_candidates(finding_value, 'all')
             if result_checker:
