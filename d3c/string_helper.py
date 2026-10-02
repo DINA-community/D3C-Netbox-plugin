@@ -77,7 +77,7 @@ def get_sug(rsp, string_normalizer, string_checker, device_attr, device_value, f
     """
     Controls the spell-checking and normalization step provided by the ApplyFinding Form.
     """
-    if not finding_value or device_value == finding_value:
+    if not finding_value:
         return None
 
     if rsp:
