@@ -1386,7 +1386,6 @@ class CommunicationFindingMap(GetReturnURLMixin, BaseMultiObjectView):
 
         return redirect(self.get_return_url(request))
 
-
 class CommunicationFindingReject(GetReturnURLMixin, BaseMultiObjectView):
     """ Handles the request for rejecting CommunicationFindings. """
     queryset = models.CommunicationFinding.objects.all()

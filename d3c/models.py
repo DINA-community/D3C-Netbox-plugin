@@ -808,7 +808,6 @@ class CommunicationFinding(NetBoxModel):
 
         self.has_2_predicted_devices = self.has_predicted_src_device and self.has_predicted_dst_device
 
-
         if save:
             self.save()
 
