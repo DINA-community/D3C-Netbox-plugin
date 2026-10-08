@@ -1,17 +1,8 @@
-<<<<<<< HEAD
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
+from django.urls import reverse
+from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Platform
 from django.contrib.messages import ERROR, get_messages
-from django.urls import reverse
 from ipam.models import Service
-from utilities.testing import ModelViewTestCase, TestCase
-=======
-from django.urls import reverse
-
-from core.models import ObjectType
-from dcim.models import DeviceType, Manufacturer, Platform
-from users.models import ObjectPermission
-from utilities.testing import ModelViewTestCase, create_tags
->>>>>>> @{-1}
+from utilities.testing import ModelViewTestCase, TestCase, create_tags
 
 from d3c import models
 
