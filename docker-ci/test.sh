@@ -28,6 +28,7 @@ test_netbox_import_example_data() {
 
 test_netbox_unit_tests() {
   echo "⏱ Running d3c Unit Tests"
+  # D3C's changes to DeviceType's behaviour make the dcim.tests.test_views.DeviceTypeTestCase fail, so we can only execute our own tests
   netbox_run /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py test d3c
 }
 
