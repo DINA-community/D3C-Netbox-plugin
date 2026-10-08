@@ -19,7 +19,7 @@ test_setup() {
 test_netbox_unit_tests() {
   echo "⏱ Running d3c Unit Tests"
   # Include NetBox's dcim.tests.test_views.DeviceTypeTestCase because d3c overrides NetBox's DeviceType add/edit views
-  $doco run --rm netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py test d3c dcim.tests.test_views.DeviceTypeTestCase
+  $doco run --rm netbox /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py test d3c dcim.tests.test_views.DeviceTypeTestCase --noinput
 }
 
 test_cleanup() {
