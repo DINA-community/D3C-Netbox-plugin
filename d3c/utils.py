@@ -124,10 +124,12 @@ def getFromContext(context, key):
     return data
 
 
-def get_ip(ip):
+def get_ip(ip, strict=True):
     if ip and valid_ipv4(ip):
         return ip + "/32"  # ToDo: More Logic needed
-    return None
+    if strict:
+        return None
+    return ip
 
 
 def parse_ip(ip):
