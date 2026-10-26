@@ -1221,7 +1221,7 @@ class FindingImportView(FormView):
                 for errorField, error in findingForm.errors.items():
                     form.add_error(errorField, error)
                 for error in findingForm.errors:
-                    errors.append(*findingForm.errors[error])
+                    errors.extend(findingForm.errors[error])
                 raise ValidationError(f"Error in create Device Finding: {', '.join(errors)}")
 
         return new_objects, countDup, countFail
