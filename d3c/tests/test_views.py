@@ -1,3 +1,4 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Platform
 from django.contrib.messages import ERROR, get_messages
@@ -165,3 +166,105 @@ class DeviceTypeEditViewTestCase(ModelViewTestCase):
         device_type = DeviceType.objects.get()
         self.assertEqual(device_type.model,
                          'DeviceFamily ModelNumber 1 HardwareNumber 1 1.2 PN-9')
+
+class FindingImportViewTestCase(TestCase):
+    """
+    Checks the FindingImportView with validate and submit calls.
+    """
+
+    def _post_data(self, **update):
+        data_file = SimpleUploadedFile(
+            "test.txt",
+            """mac_address,ip_address,device_role,manufacturer,device_family,confidence,source
+00:01:e6:44:19:ff,,IODevice2,Packard,SPS-5001,0.067,IPadded
+,127.0.0.1,IODevice2,Packard,SPS-5001,0.067,IPadded""".encode("utf-8"),
+            content_type="text/plain"
+        )
+        data = {
+            "data_file": data_file,
+            "file_name": "test.txt",
+            "format": "csv",
+            "csv_delimiter": "auto",
+            "step_field": "1",
+            "submit_button": "data_validate",
+            "data_string":"""mac_address,ip_address,device_role,manufacturer,device_family,confidence,source
+00:01:e6:44:19:ff,,IODevice2,Packard,SPS-5001,0.067,IPadded
+,127.0.0.1,IODevice2,Packard,SPS-5001,0.067,IPadded"""  ,
+        }
+        data.update(update)
+        return data
+
+    def test_validate_and_submit_with_rawdata(self):
+        """
+        Calls validate and submit with correct rawdata and check if findings
+        are created in the end.
+        """
+        response = self.client.get(reverse("plugins:d3c:devicefinding_import"))
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, "Importing DeviceFindings")
+        response = self.client.post(
+            reverse("plugins:d3c:devicefinding_import"),
+            self._post_data()
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, "{confidence}")
+        response = self.client.post(
+            reverse("plugins:d3c:devicefinding_import"),
+            self._post_data(submit_button="data_submit", data_string="""mac_address,ip_address,device_role,manufacturer,device_family,confidence,source
+00:01:e6:44:19:ff,,IODevice2,Packard,SPS-5001,0.067,IPadded
+,127.0.0.1,IODevice2,Packard,SPS-5001,0.067,IPadded""",
+                source="{source}",
+                ip_address="{ip_address}",
+                mac_address="{mac_address}",
+                confidence="{confidence}"
+            )
+        )
+        self.assertHttpStatus(response, 302)
+        self.assertTrue(models.DeviceFinding.objects.all().exists())
+
+    def test_validate_and_submit_with_errors(self):
+        """
+        Calls validate and submit with data without IP/MAC address and check if
+        errors are displayed.
+        """
+        data_string = """mac_address,ip_address,device_role,manufacturer,device_family,confidence,source
+,127.0.0.1,IODevice3,Packard,SPS-5001,0.090,IPadded
+,,IODevice3,Packard,SPS-5001,0.067,IPadded
+"""
+
+        data_file = SimpleUploadedFile(
+            "test.txt",
+            data_string.encode("utf-8"),
+            content_type="text/plain"
+        )
+        response = self.client.get(reverse("plugins:d3c:devicefinding_import"))
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, "Importing DeviceFindings")
+        response = self.client.post(
+            reverse("plugins:d3c:devicefinding_import"),
+            self._post_data(data_file=data_file, data_string=data_string)
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, "test.txt")
+        data_file = SimpleUploadedFile(
+            "test.txt",
+            data_string.encode("utf-8"),
+            content_type="text/plain"
+        )
+        data = self._post_data(
+            submit_button="data_submit",
+            data_file=data_file,
+            data_string=data_string,
+            source="{source}",
+            mac_address="{mac_address}",
+            ip_address="{ip_address}",
+            confidence="{confidence}",
+            device_family="{device_family}"
+        )
+        response = self.client.post(
+            reverse("plugins:d3c:devicefinding_import"),
+            data
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(models.DeviceFinding.objects.all().exists())
+        self.assertContains(response, "Error in create Device Finding in line 2")
