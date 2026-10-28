@@ -194,4 +194,4 @@ if plugin_settings.get("top_level_menu"):
     )
 else:
     menu_items = (findingItem, communicationFindingItem, communicationItem, softwareItem,
-                  softwareTypeItem. productrelItem, xgenericuriItem, hashItem, filehashItem)
+                  softwareTypeItem, productrelItem, xgenericuriItem, hashItem, filehashItem)
