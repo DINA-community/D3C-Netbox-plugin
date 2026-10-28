@@ -223,9 +223,8 @@ class SoftwareTypeViewTestCase(ModelViewTestCase):
         for name in names:
             models.SoftwareType.objects.create(name=name, manufacturer=self.manufacturer)
         response = self.client.get(reverse('plugins:d3c:softwaretype_list'))
-        self.assertHttpStatus(response, 200)
         for name in names:
-            self.assertIn(name, str(response.content))
+            self.assertContains(response, name)
 
     def test_edit_a_software_type(self):
         self.add_permissions('d3c.change_softwaretype', 'd3c.view_softwaretype', 'dcim.view_manufacturer')
@@ -270,7 +269,7 @@ class SoftwareViewTestCase(ModelViewTestCase):
         data = self._post_data()
         response = self.client.post(reverse('plugins:d3c:software_add'), data)
         self.assertHttpStatus(response, 302)
-        self.assertTrue(models.SoftwareType.objects.exists())
+        self.assertTrue(models.Software.objects.exists())
 
     def test_delete_a_software(self):
         self.add_permissions('d3c.delete_software')
@@ -291,8 +290,7 @@ class SoftwareViewTestCase(ModelViewTestCase):
             name=software_name, software_type=self.software_type)
         data = {'pk': software.pk}
         response = self.client.get(reverse('plugins:d3c:software', kwargs=data))
-        self.assertHttpStatus(response, 200)
-        self.assertIn(software_name, str(response.content))
+        self.assertContains(response, software_name)
 
     def test_list_softwares(self):
         names = ('SoftwareA', 'SoftwareB', 'SoftwareC')
@@ -300,9 +298,8 @@ class SoftwareViewTestCase(ModelViewTestCase):
         for name in names:
             models.Software.objects.create(name=name, software_type=self.software_type)
         response = self.client.get(reverse('plugins:d3c:software_list'))
-        self.assertHttpStatus(response, 200)
         for name in names:
-            self.assertIn(name, str(response.content))
+            self.assertContains(response, name)
 
     def test_edit_a_software(self):
         self.add_permissions('d3c.change_software', 'd3c.view_software', 'd3c.view_softwaretype')
