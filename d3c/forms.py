@@ -68,10 +68,11 @@ class XGenericUriForm(NetBoxModelForm):
         selector=True,
         label='Device Type'
     )
-    software = DynamicModelChoiceField(
-        queryset=Software.objects.all(),
+    softwaretype = DynamicModelChoiceField(
+        queryset=SoftwareType.objects.all(),
         required=False,
         selector=True,
+        label='Software Type'
     )
     namespace = forms.CharField(required=True, label="Namespace", validators=[validate_uri])
 
@@ -91,8 +92,8 @@ class XGenericUriForm(NetBoxModelForm):
         if instance:
             if type(instance.content_object) is DeviceType:
                 initial['devicetype'] = instance.content_object
-            elif type(instance.content_object) is Software:
-                initial['software'] = instance.content_object
+            elif type(instance.content_object) is SoftwareType:
+                initial['softwaretype'] = instance.content_object
         kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
@@ -102,7 +103,7 @@ class XGenericUriForm(NetBoxModelForm):
 
         # Handle object assignment
         selected_objects = [
-            field for field in ('devicetype', 'software') if self.cleaned_data[field]
+            field for field in ('devicetype', 'softwaretype') if self.cleaned_data[field]
         ]
         if len(selected_objects) > 1:
             raise forms.ValidationError(
