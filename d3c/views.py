@@ -1197,10 +1197,8 @@ class FindingImportView(FormView):
         new_objects = []
         countDup = 0
         countFail = 0
-        count = 0
-        for record in form.csv_records:
+        for count, record in enumerate(form.csv_records):
             data = {}
-            count += 1
             try:
                 for name, fieldName in form.templates.items():
                     value = fillTemplate(form.cleaned_data[fieldName], record)
@@ -1227,7 +1225,7 @@ class FindingImportView(FormView):
                     form.add_error(errorField, error)
                 for error in findingForm.errors:
                     errors.extend(findingForm.errors[error])
-                raise ValidationError(f"Error in create Device Finding in line {count}: {', '.join(errors)}")
+                raise ValidationError(f"Error in create Device Finding in line {count + 1}: {', '.join(errors)}")
 
         return new_objects, countDup, countFail
 
