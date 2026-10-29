@@ -172,12 +172,19 @@ class FindingImportViewTestCase(TestCase):
     Checks the FindingImportView with validate and submit calls.
     """
 
-    def _post_data(self, **update):
+    def _post_data(self, version="rawdata", **update):
+        headers = b"mac_address,ip_address,device_role,manufacturer,device_family,confidence,source\n"
+        if version == "rawdata":
+            data_bytes = headers + b"""00:01:e6:44:19:ff,,IODevice2,Packard,SPS-5001,0.067,IPadded
+,127.0.0.1,IODevice2,Packard,SPS-5001,0.067,IPadded"""
+        elif version == "reorder_missing_mac":
+            data_bytes = headers + b""",127.0.0.1,IODevice3,Packard,SPS-5001,0.090,IPadded
+,,IODevice3,Packard,SPS-5001,0.067,IPadded"""
+        else:
+            raise ValueError("version must be 'rawdata' or 'reorder_missing_mac'")
         data_file = SimpleUploadedFile(
             "test.txt",
-            """mac_address,ip_address,device_role,manufacturer,device_family,confidence,source
-00:01:e6:44:19:ff,,IODevice2,Packard,SPS-5001,0.067,IPadded
-,127.0.0.1,IODevice2,Packard,SPS-5001,0.067,IPadded""".encode("utf-8"),
+            data_bytes,
             content_type="text/plain"
         )
         data = {
@@ -222,33 +229,18 @@ class FindingImportViewTestCase(TestCase):
         Calls validate and submit with data without IP/MAC address and check if
         errors are displayed.
         """
-        data_string = """mac_address,ip_address,device_role,manufacturer,device_family,confidence,source
-,127.0.0.1,IODevice3,Packard,SPS-5001,0.090,IPadded
-,,IODevice3,Packard,SPS-5001,0.067,IPadded
-"""
-
-        data_file = SimpleUploadedFile(
-            "test.txt",
-            data_string.encode("utf-8"),
-            content_type="text/plain"
-        )
         response = self.client.get(reverse("plugins:d3c:devicefinding_import"))
         self.assertHttpStatus(response, 200)
         self.assertContains(response, "Importing DeviceFindings")
         response = self.client.post(
             reverse("plugins:d3c:devicefinding_import"),
-            self._post_data(data_file=data_file)
+            self._post_data(version="reorder_missing_mac")
         )
         self.assertHttpStatus(response, 200)
         self.assertContains(response, "test.txt")
-        data_file = SimpleUploadedFile(
-            "test.txt",
-            data_string.encode("utf-8"),
-            content_type="text/plain"
-        )
         data = self._post_data(
+            version="reorder_missing_mac",
             submit_button="data_submit",
-            data_file=data_file,
             source="{source}",
             mac_address="{mac_address}",
             ip_address="{ip_address}",
