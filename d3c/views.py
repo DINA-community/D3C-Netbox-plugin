@@ -1091,8 +1091,8 @@ class FindingImportView(FormView):
                 except (AbortRequest, PermissionsViolation) as e:
                     form.add_error(None, e.message)
                     clear_events.send(sender=self)
-                except IntegrityError:
-                    form.add_error(None, "Integrity Error")
+                except IntegrityError as e:
+                    form.add_error(None, str(e))
                     clear_events.send(sender=self)
                 return render(request, self.template_name, {'form': form, 'examples': examples})
 
