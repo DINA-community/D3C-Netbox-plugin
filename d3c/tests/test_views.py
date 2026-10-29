@@ -187,9 +187,6 @@ class FindingImportViewTestCase(TestCase):
             "csv_delimiter": "auto",
             "step_field": "1",
             "submit_button": "data_validate",
-            "data_string":"""mac_address,ip_address,device_role,manufacturer,device_family,confidence,source
-00:01:e6:44:19:ff,,IODevice2,Packard,SPS-5001,0.067,IPadded
-,127.0.0.1,IODevice2,Packard,SPS-5001,0.067,IPadded"""  ,
         }
         data.update(update)
         return data
@@ -210,9 +207,7 @@ class FindingImportViewTestCase(TestCase):
         self.assertContains(response, "{confidence}")
         response = self.client.post(
             reverse("plugins:d3c:devicefinding_import"),
-            self._post_data(submit_button="data_submit", data_string="""mac_address,ip_address,device_role,manufacturer,device_family,confidence,source
-00:01:e6:44:19:ff,,IODevice2,Packard,SPS-5001,0.067,IPadded
-,127.0.0.1,IODevice2,Packard,SPS-5001,0.067,IPadded""",
+            self._post_data(submit_button="data_submit",
                 source="{source}",
                 ip_address="{ip_address}",
                 mac_address="{mac_address}",
@@ -242,7 +237,7 @@ class FindingImportViewTestCase(TestCase):
         self.assertContains(response, "Importing DeviceFindings")
         response = self.client.post(
             reverse("plugins:d3c:devicefinding_import"),
-            self._post_data(data_file=data_file, data_string=data_string)
+            self._post_data(data_file=data_file)
         )
         self.assertHttpStatus(response, 200)
         self.assertContains(response, "test.txt")
@@ -254,7 +249,6 @@ class FindingImportViewTestCase(TestCase):
         data = self._post_data(
             submit_button="data_submit",
             data_file=data_file,
-            data_string=data_string,
             source="{source}",
             mac_address="{mac_address}",
             ip_address="{ip_address}",
