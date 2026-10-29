@@ -1391,8 +1391,12 @@ class CommunicationFindingMap(GetReturnURLMixin, BaseMultiObjectView):
                         a_comm, created = models.Communication.objects.get_or_create(
                             source_device=Device.objects.get(id=src.id),
                             destination_device=Device.objects.get(id=dst.id),
-                            source_ip_addr=IPAddress.objects.get(address=communication_finding.source_ip + '/32'),
-                            destination_ip_addr=IPAddress.objects.get(address=communication_finding.destination_ip + '/32'),
+                            source_ip_addr=IPAddress.objects.get(
+                                address=get_ip(communication_finding.source_ip, False)
+                            ),
+                            destination_ip_addr=IPAddress.objects.get(
+                                address=get_ip(communication_finding.destination_ip, False)
+                            ),
                             destination_port=communication_finding.destination_port,
                             network_protocol=communication_finding.network_protocol,
                             transport_protocol=communication_finding.transport_protocol,
