@@ -29,7 +29,7 @@ class Software(NetBoxModel):
     software_type = models.ForeignKey(
         to='d3c.SoftwareType',
         related_name='software',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         blank=True,
         null=True
     )
@@ -74,7 +74,7 @@ class SoftwareType(NetBoxModel):
     )
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='softwareManufacturer',
         blank=True,
         null=True
