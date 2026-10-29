@@ -220,7 +220,7 @@ class FindingImportViewTestCase(TestCase):
             )
         )
         self.assertHttpStatus(response, 302)
-        self.assertTrue(models.DeviceFinding.objects.all().exists())
+        self.assertEqual(models.DeviceFinding.objects.count(), 2)
 
     def test_validate_and_submit_with_errors(self):
         """
