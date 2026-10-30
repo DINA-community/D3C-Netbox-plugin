@@ -12,7 +12,7 @@ from .utils import get_ip, parse_ip
 from .string_helper import check_choice
 from dcim.choices import DeviceStatusChoices
 from extras.models import CustomFieldChoiceSet
-from .models import Software, ProductRelationship, ProductRelationshipCategory
+from .models import Software, SoftwareType, ProductRelationship, ProductRelationshipCategory
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -484,7 +484,8 @@ def add_software(device, name, firmware, version):
     version = version if version else 'Unspecified'
     firmware = firmware == "True"
 
-    software, created = Software.objects.get_or_create(name=name, is_firmware=firmware, version=version)
+    software_type, created = SoftwareType.objects.get_or_create(name=name, is_firmware=firmware, version=version)
+    software, created = Software.objects.get_or_create(name=name, software_type=software_type)
 
     try:
         relation, created = ProductRelationship.objects.get_or_create(source_type=ContentType.objects.get_for_model(Software),
