@@ -41,6 +41,26 @@ class SoftwareTestCase(TestCase):
             '"d3c_software" violates not-null constraint',
             str(exc.exception))
 
+    def test_software_type_protect_on_delete(self):
+        """Checks if deletion of a software type fails, if it has a software"""
+        manufacturer = Manufacturer.objects.create(
+            name='Manufacturer', slug='manufacturer'
+        )
+        software_type = SoftwareType.objects.create(
+            name="Software Type", manufacturer=manufacturer
+        )
+        Software.objects.create(
+            name="TSoft3", software_type=software_type
+        )
+        with self.assertRaises(IntegrityError) as exc:
+            software_type.delete()
+        self.assertIn(
+            '("Cannot delete some instances of model \'SoftwareType\' because'
+            ' they are referenced through protected foreign keys: '
+            '\'Software.software_type\'.", {<Software: TSoft3 (Manufacturer)>})',
+            str(exc.exception)
+        )
+
 
 class SoftwareTypeTestCase(TestCase):
     """TODO: SoftwareType"""
