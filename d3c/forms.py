@@ -3,7 +3,7 @@
 """
 
 import csv
-from .models import DeviceFinding, Software, Communication, \
+from .models import DeviceFinding, Software, SoftwareType, Communication, \
     CommunicationFinding, Mapping, ProductRelationship, XGenericUri, Hash, FileHash, FILEHASH_ALGO
 from .utils import parse_csv, parse_nmap, validate_cpe, validate_purl, validate_fh, validate_uri
 from dcim.models.devices import Device, DeviceType, Manufacturer, Platform
@@ -68,10 +68,11 @@ class XGenericUriForm(NetBoxModelForm):
         selector=True,
         label='Device Type'
     )
-    software = DynamicModelChoiceField(
-        queryset=Software.objects.all(),
+    softwaretype = DynamicModelChoiceField(
+        queryset=SoftwareType.objects.all(),
         required=False,
         selector=True,
+        label='Software Type'
     )
     namespace = forms.CharField(required=True, label="Namespace", validators=[validate_uri])
 
@@ -91,8 +92,8 @@ class XGenericUriForm(NetBoxModelForm):
         if instance:
             if type(instance.content_object) is DeviceType:
                 initial['devicetype'] = instance.content_object
-            elif type(instance.content_object) is Software:
-                initial['software'] = instance.content_object
+            elif type(instance.content_object) is SoftwareType:
+                initial['softwaretype'] = instance.content_object
         kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
@@ -102,7 +103,7 @@ class XGenericUriForm(NetBoxModelForm):
 
         # Handle object assignment
         selected_objects = [
-            field for field in ('devicetype', 'software') if self.cleaned_data[field]
+            field for field in ('devicetype', 'softwaretype') if self.cleaned_data[field]
         ]
         if len(selected_objects) > 1:
             raise forms.ValidationError(
@@ -705,12 +706,27 @@ class SoftwareForm(NetBoxModelForm):
     """
     Input Form for the Software model.
     """
+    software_type = DynamicModelChoiceField(
+        queryset=SoftwareType.objects.all(),
+        required=True,
+        label="Software Type"
+    )
+
+    class Meta:
+        model = Software
+        fields = ('id', 'name', 'software_type')
+
+
+class SoftwareTypeForm(NetBoxModelForm):
+    """
+    Input Form for the SoftwareType model.
+    """
     manufacturer = DynamicModelChoiceField(
         queryset=Manufacturer.objects.all(),
         required=True,
         label="Manufacturer"
     )
-        
+
     cpe = forms.CharField(required=False, label="CPE", validators=[validate_cpe])
 
     purl = forms.CharField(required=False, label="PURL", validators=[validate_purl])
@@ -723,7 +739,7 @@ class SoftwareForm(NetBoxModelForm):
     )
 
     class Meta:
-        model = Software
+        model = SoftwareType
         fields = ('id', 'name', 'manufacturer', 'is_firmware', 'version', 'cpe', 'purl', 'sbom_urls',  'tags')
 
 
@@ -732,14 +748,7 @@ class SoftwareFilterForm(NetBoxModelFilterSetForm):
     Input Form for filtering Software objects.
     """
     model = Software
-    devices = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        required=False
-    )
     name = forms.CharField(required=False)
-    is_firmware = forms.BooleanField(required=False)
-    cpe = forms.CharField(required=False)
-    version = forms.CharField(required=False)
 
 
 class SoftwareImportForm(ModelForm):
@@ -750,6 +759,32 @@ class SoftwareImportForm(ModelForm):
 
     class Meta:
         model = Software
+        fields = ('name',)
+
+
+class SoftwareTypeFilterForm(NetBoxModelFilterSetForm):
+    """
+    Input Form for filtering Software objects.
+    """
+    model = SoftwareType
+    manufacturer = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False
+    )
+    name = forms.CharField(required=False)
+    is_firmware = forms.BooleanField(required=False)
+    cpe = forms.CharField(required=False)
+    version = forms.CharField(required=False)
+
+
+class SoftwareTypeImportForm(ModelForm):
+    """Form for importing Software"""
+
+    title = "Importing SoftwareType."
+    csvdata = forms.CharField(widget=forms.Textarea)
+
+    class Meta:
+        model = SoftwareType
         fields = ('name', 'is_firmware', 'version', 'cpe', 'purl', 'sbom_urls')
 
 
