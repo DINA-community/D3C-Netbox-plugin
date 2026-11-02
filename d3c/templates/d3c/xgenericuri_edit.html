@@ -21,7 +21,7 @@
         <div class="offset-sm-3">
           <ul class="nav nav-pills" role="tablist">
             <li role="presentation" class="nav-item">
-              <button role="tab" type="button" id="devicetype_tab" data-bs-toggle="tab" aria-controls="devicetype" data-bs-target="#devicetype" class="nav-link {% if not form.initial.software %}active{% endif %}">
+              <button role="tab" type="button" id="devicetype_tab" data-bs-toggle="tab" aria-controls="devicetype" data-bs-target="#devicetype" class="nav-link {% if not form.initial.softwaretype %}active{% endif %}">
                 DeviceType
               </button>
             </li>
@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="tab-content p-0 border-0">
-        <div class="tab-pane {% if not form.initial.devicetype %}active{% endif %}" id="devicetype" role="tabpanel" aria-labeled-by="devicetype_tab">
+        <div class="tab-pane {% if not form.initial.softwaretype %}active{% endif %}" id="devicetype" role="tabpanel" aria-labeled-by="devicetype_tab">
           {% render_field form.devicetype %}
         </div>
         <div class="tab-pane {% if form.initial.softwaretype %}active{% endif %}" id="softwaretype" role="tabpanel" aria-labeled-by="softwaretype_tab">
