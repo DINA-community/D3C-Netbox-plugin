@@ -32,11 +32,58 @@ class DeviceFindingSplitTestCase(ModelViewTestCase):
 
 
 class DeviceFindingApplyTestCase(ModelViewTestCase):
-    """TODO: DeviceFindingApply"""
+    """Apply findings"""
     model = models.DeviceFinding
 
-    def test_placeholder(self):
-        pass
+    @classmethod
+    def setUpTestData(cls):
+        """Setup data"""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.device = Device.objects.create(
+            name='Device',
+            device_type=DeviceType.objects.create(
+                manufacturer=manufacturer, model='Device Type', slug='device-type'),
+            role=DeviceRole.objects.create(name='Role', slug='role'),
+            site=Site.objects.create(name='Site', slug='site'),
+        )
+        cls.finding = models.DeviceFinding.objects.create(
+            source='manual', device=cls.device, software_name="TSoftware")
+        cls.software_type = models.SoftwareType.objects.create(name='TSoftwareType', manufacturer=manufacturer)
+        cls.software = models.Software.objects.create(name='TSoftware', software_type=cls.software_type)
+
+    def test_apply_with_software(self):
+        """Apply finding with software and check if added to ProductRelation"""
+        self.add_permissions(
+            'd3c.view_devicefinding',
+            'd3c.change_devicefinding',
+            'd3c.edit_devicefinding',
+            'dcim.add_device',
+            'dcim.change_device',
+            'dcim.view_device',
+        )
+        response = self.client.get(reverse('plugins:d3c:devicefinding_apply'),
+            query_params={
+                'device': self.device.pk,
+                'finding': self.finding.pk,
+                'rsp': 'True'
+            }
+        )
+        self.assertHttpStatus(response, 200)
+
+        response = self.client.post(reverse('plugins:d3c:devicefinding_apply'),
+            query_params={
+                'device': self.device.pk,
+                'finding': self.finding.pk,
+                'rsp': 'True',
+                'return_url': '/plugins/d3c/findings'
+            },
+            data={
+                '_update': '',
+                'add_software': 'on'
+            }
+        )
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(models.ProductRelationship.objects.count(), 1)
 
 
 class DeviceFindingLookupViewTestCase(ModelViewTestCase):
