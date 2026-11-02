@@ -26,19 +26,19 @@
               </button>
             </li>
             <li role="presentation" class="nav-item">
-              <button role="tab" type="button" id="software_tab" data-bs-toggle="tab" aria-controls="software" data-bs-target="#software" class="nav-link {% if form.initial.software %}active{% endif %}">
-                Software
+              <button role="tab" type="button" id="softwaretype_tab" data-bs-toggle="tab" aria-controls="softwaretype" data-bs-target="#softwaretype" class="nav-link {% if form.initial.softwaretype %}active{% endif %}">
+                Software Type
               </button>
             </li>
           </ul>
         </div>
       </div>
       <div class="tab-content p-0 border-0">
-        <div class="tab-pane {% if not form.initial.software %}active{% endif %}" id="devicetype" role="tabpanel" aria-labeled-by="devicetype_tab">
+        <div class="tab-pane {% if not form.initial.devicetype %}active{% endif %}" id="devicetype" role="tabpanel" aria-labeled-by="devicetype_tab">
           {% render_field form.devicetype %}
         </div>
-        <div class="tab-pane {% if form.initial.software %}active{% endif %}" id="software" role="tabpanel" aria-labeled-by="software_tab">
-          {% render_field form.software %}
+        <div class="tab-pane {% if form.initial.softwaretype %}active{% endif %}" id="softwaretype" role="tabpanel" aria-labeled-by="softwaretype_tab">
+          {% render_field form.softwaretype %}
         </div>
       </div>
     </div>

@@ -145,10 +145,10 @@ class XGenericUriEditView(generic.ObjectEditView):
                 obj.parent = DeviceType.objects.get(pk=request.GET['devicetype'])
             except (ValueError, DeviceType.DoesNotExist):
                 pass
-        elif 'software' in request.GET:
+        elif 'softwaretype' in request.GET:
             try:
-                obj.parent = models.Software.objects.get(pk=request.GET['software'])
-            except (ValueError, models.Software.DoesNotExist):
+                obj.parent = models.SoftwareType.objects.get(pk=request.GET['softwaretype'])
+            except (ValueError, models.SoftwareType.DoesNotExist):
                 pass
         return obj
 
