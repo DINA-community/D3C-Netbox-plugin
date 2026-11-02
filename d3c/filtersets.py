@@ -106,7 +106,7 @@ class HashFilterSet(NetBoxModelFilterSet):
     """
     class Meta:
         model = Hash
-        fields = ('id', 'software', 'filename')
+        fields = ('id', 'software_type', 'filename')
 
     def search(self, queryset, name, value):
         return queryset.filter(description__icontains=value)

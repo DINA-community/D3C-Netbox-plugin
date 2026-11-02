@@ -61,9 +61,9 @@ class HashTable(NetBoxTable):
     """
         Table for the Hash model.
     """
-    software = tables.Column(
-        verbose_name='Software',
-        accessor=Accessor('software'),
+    software_type = tables.Column(
+        verbose_name='Software Type',
+        accessor=Accessor('software_type'),
         linkify=True
     )
 
@@ -73,9 +73,9 @@ class HashTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Hash
         fields = (
-            'id', 'filename', 'software'
+            'id', 'filename', 'software_type'
         )
-        default_columns = ('id', 'software', 'filename', 'fh')
+        default_columns = ('id', 'software_type', 'filename', 'fh')
 
     def render_fh(self, record):
         return FileHash.objects.filter(hash=record.id).count()
@@ -453,7 +453,7 @@ class SoftwareTypeTable(NetBoxTable):
         return len(record.sbom_urls) if record.sbom_urls else 0
 
     def render_hashes_count(self, record):
-        return Hash.objects.filter(software=record.id).count()
+        return Hash.objects.filter(software_type=record.id).count()
 
     def render_xgenericuri_count(self, record):
         return record.xgenericuri.count()

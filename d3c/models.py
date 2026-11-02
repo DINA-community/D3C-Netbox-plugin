@@ -181,10 +181,11 @@ class Hash(NetBoxModel):
     It stores the relationship to software and the concrete filename.
     The actual hash value is specified via a FileHash model.
     """
-    software = models.ForeignKey(
-        to='d3c.Software',
+    software_type = models.ForeignKey(
+        to='d3c.SoftwareType',
         on_delete=models.CASCADE,
         related_name='hashes',
+        null=True
     )
 
     filename = models.CharField(

@@ -35,7 +35,7 @@ class HashForm(NetBoxModelForm):
     """
     class Meta:
         model = Hash
-        fields = ('id', 'software', 'filename', 'tags')
+        fields = ('id', 'software_type', 'filename', 'tags')
 
 
 class FileHashForm(NetBoxModelForm):
