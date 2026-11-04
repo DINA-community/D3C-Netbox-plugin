@@ -1,7 +1,8 @@
 import re, time
 from defusedxml import ElementTree as ET
 from django.core.exceptions import ValidationError
-from netaddr import valid_mac, valid_ipv4, IPNetwork, AddrFormatError
+import ipaddress
+from netaddr import valid_mac, valid_ipv4, IPNetwork, AddrFormatError, IPAddress
 from .string_checker import StringChecker
 import re
 from .uri_validate import URI
@@ -124,21 +125,32 @@ def getFromContext(context, key):
     return data
 
 
-def get_ip(ip, strict=True):
-    if ip and valid_ipv4(ip):
-        return ip + "/32"  # ToDo: More Logic needed
-    if strict:
+IPLike: TypeAlias = (
+    str
+    | IPNetwork
+    | IPAddress
+    | ipaddress.IPv4Network
+    | ipaddress.IPv6Network
+    | ipaddress.IPv4Address
+    | ipaddress.IPv6Address
+    | ipaddress.IPv4Interface
+    | ipaddress.IPv6Interface
+    | None
+)
+
+def get_ip(ip) -> IPNetwork | None:
+    return parse_ip(ip)
+    
+def parse_ip(ip: IPLike) -> IPNetwork | None:
+    """Parse any IP-ish input into an IPv4 netaddr.IPNetwork, else None."""
+    if ip is None:
         return None
-    return ip
-
-
-def parse_ip(ip):
     try:
-        parsed_ip = IPNetwork(ip)
+        parsed_ip = IPNetwork(str(ip))
         if parsed_ip.version != 4:
-            parsed_ip = None
-        return parsed_ip
-    except AddrFormatError as e:
+            return None
+        return parsed_ip    
+    except (AddrFormatError, ValueError):
         return None
 
 
