@@ -843,6 +843,8 @@ def communicationfinding_check_asignment(sender, instance, **kwargs):
                 CommunicationFinding.objects.filter(pk=instance.pk).update(has_predicted_dst_device=True)
             else:
                 CommunicationFinding.objects.filter(pk=instance.pk).update(has_predicted_dst_device=False)
+        new_has_2_predicted_devices = bool(src) and bool(dst)
+        CommunicationFinding.objects.filter(pk=instance.pk).update(has_2_predicted_devices=new_has_2_predicted_devices)
     except BaseException as e:
         pass
 
@@ -881,6 +883,7 @@ FILEHASH_ALGO=(
     ('md4', 'md4'),
     ('md5', 'md5'),
     ('md5-sha1', 'md5-sha1'),
+    ('mdc2', 'mdc2'),
     ('ripemd', 'ripemd'),
     ('ripemd160', 'ripemd160'),
     ('rmd160', 'rmd160'),
@@ -890,6 +893,7 @@ FILEHASH_ALGO=(
     ('sha3-224', 'sha3-224'),
     ('sha3-256', 'sha3-256'),
     ('sha3-384', 'sha3-384'),
+    ('sha3-512', 'sha3-512'),
     ('sha384', 'sha384'),
     ('sha512', 'sha512'),
     ('sha512-224', 'sha512-224'),
