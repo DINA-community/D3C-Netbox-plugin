@@ -524,12 +524,35 @@ class FindingImportForm(forms.Form):
     """Form for importing DeviceFindings"""
 
     title = "Importing DeviceFindings"
-    fieldNames = ('source', 'confidence','ip_address',
-                  'description', 'device_role', 'serial_number', 'device_name', 'status', 'site', 'rack', 'location',
-                  'device_type', 'serial_number', 'device_role', 'is_safety_critical',
-                  'ip_address', 'mac_address', 'network_protocol', 'transport_protocol', 'application_protocol', 'port',
-                  'is_router', 'manufacturer', 'oui', 'device_family', 'part_number',
-                  'hardware_version', 'hardware_cpe', 'software_name', 'is_firmware', 'version', 'exposure')
+    fieldNames = ('source', 'confidence',
+                  'site',
+                  'rack',
+                  'location',
+                  'device_name',
+                  'description',
+                  'device_role',
+                  'serial_number', 
+                  'is_safety_critical',
+                  'exposure',
+                  'ip_address', 
+                  'mac_address',
+                  'status',
+                  'manufacturer',
+                  'device_type',
+                  'device_family',
+                  'part_number',
+                  'hardware_version',
+                  'hardware_cpe', 
+                  'network_protocol',
+                  'transport_protocol',
+                  'application_protocol',
+                  'port',
+                  # 'is_router', outdated
+                  'oui', 
+                  'software_name',
+                  'is_firmware',
+                  'version'
+                  )
     templates = {}
     csv_headers = {}
     csv_records = []
