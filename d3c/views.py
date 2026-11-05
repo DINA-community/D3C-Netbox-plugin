@@ -1070,8 +1070,31 @@ class FindingImportView(FormView):
                 print("Creating Findings...")
 
                 try:
-                    if not cleaned_data.get('source', None):
-                        raise ValidationError('Source must have a value')
+                    file_name = cleaned_data.get('file_name', None)
+                    source_value = cleaned_data.get('source', None)
+                    print(f"Creating Findings...{file_name} and {source_value}")
+                    if file_name:
+                        if not source_value:
+                            cleaned_data['source'] = file_name
+                            source_value = file_name
+                        if not source_value:
+                            raise ValidationError('Source must have a value')
+                    else:
+                        # Raw data import: a source must be provided explicitly.
+                        if not source_value:
+                            raise ValidationError(
+                                'Source must have a value when importing raw data. '
+                                'Provide a constant or map a "source" column.'
+                            )
+                        # Verify the source
+                        if source_value.startswith('{') and source_value.endswith('}'):
+                            column_name = source_value[1:-1].split(':', 1)[0].strip()
+                            if column_name and column_name not in form.csv_headers:
+                                raise ValidationError(
+                                    f'The source column "{column_name}" is not present in the raw data. '
+                                    f'Available columns: {", ".join(form.csv_headers)}. '
+                                    'Provide a source column or enter a constant value for Source.'
+                                )
 
                     # Iterate through data and bind each record to a new model form instance.
                     with transaction.atomic():
