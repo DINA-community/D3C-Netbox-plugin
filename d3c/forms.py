@@ -524,7 +524,7 @@ class FindingImportForm(forms.Form):
     """Form for importing DeviceFindings"""
 
     title = "Importing DeviceFindings"
-    fieldNames = ('source', 'confidence',
+    fieldNames = ('source', 'confidence','ip_address',
                   'description', 'device_role', 'serial_number', 'device_name', 'status', 'site', 'rack', 'location',
                   'device_type', 'serial_number', 'device_role', 'is_safety_critical',
                   'ip_address', 'mac_address', 'network_protocol', 'transport_protocol', 'application_protocol', 'port',
