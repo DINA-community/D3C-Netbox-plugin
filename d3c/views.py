@@ -1072,13 +1072,9 @@ class FindingImportView(FormView):
                 try:
                     file_name = cleaned_data.get('file_name', None)
                     source_value = cleaned_data.get('source', None)
-                    print(f"Creating Findings...{file_name} and {source_value}")
                     if file_name:
                         if not source_value:
                             cleaned_data['source'] = file_name
-                            source_value = file_name
-                        if not source_value:
-                            raise ValidationError('Source must have a value')
                     else:
                         # Raw data import: a source must be provided explicitly.
                         if not source_value:
