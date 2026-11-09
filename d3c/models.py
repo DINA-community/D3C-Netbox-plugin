@@ -16,14 +16,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.contenttypes.fields import GenericRelation
 
 
-class Dummy(NetBoxModel):
-    """
-    A dummy model which enables the plugin to track whether it was already initialized.
-    Such an object will be created through django's request_started-signal in __init__.py.
-    """
-    initialized = models.BooleanField(default=False)
-
-
 class Software(NetBoxModel):
     """
     Software represents a program installed on a device or as a subcomponent of another software.
@@ -881,6 +873,7 @@ FILEHASH_ALGO=(
     ('md4', 'md4'),
     ('md5', 'md5'),
     ('md5-sha1', 'md5-sha1'),
+    ('mdc2', 'mdc2'),
     ('ripemd', 'ripemd'),
     ('ripemd160', 'ripemd160'),
     ('rmd160', 'rmd160'),
@@ -890,6 +883,7 @@ FILEHASH_ALGO=(
     ('sha3-224', 'sha3-224'),
     ('sha3-256', 'sha3-256'),
     ('sha3-384', 'sha3-384'),
+    ('sha3-512', 'sha3-512'),
     ('sha384', 'sha384'),
     ('sha512', 'sha512'),
     ('sha512-224', 'sha512-224'),
