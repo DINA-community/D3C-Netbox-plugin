@@ -3,6 +3,7 @@ from defusedxml import ElementTree as ET
 from django.core.exceptions import ValidationError
 import ipaddress
 from netaddr import valid_mac, valid_ipv4, IPNetwork, AddrFormatError, IPAddress
+from typing import TypeAlias
 from .string_checker import StringChecker
 import re
 from .uri_validate import URI
@@ -211,4 +212,3 @@ def validate_uri(value):
                 raise ValidationError(f"Is not a valid URI")
     except re.error as e:
         raise ValidationError(f"Is not a valid regular expression.")
-
