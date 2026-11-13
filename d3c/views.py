@@ -815,7 +815,8 @@ class DeviceFindingApply(generic.ObjectEditView):
             'form': form,
             'rsp': not rsp,
             'empty': empty,
-            'return_url': self.initial_data.get('return_url', self.get_return_url(request, self.device)),
+            'return_url': self.initial_data.get('return_url',
+                                                self.get_return_url(request, self.device)),
             'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request, self.device),
         })
@@ -964,7 +965,7 @@ class DeviceFindingEditView(generic.ObjectEditView):
                 elif not interface_name:
                     mes = ("Provide an Interface Name.")
                 elif not device:
-                    mes = ("Provide a Devicee.")
+                    mes = ("Provide a Device.")
 
                 if mes:
                     form.add_error(None, mes)
@@ -1413,8 +1414,12 @@ class CommunicationFindingMap(GetReturnURLMixin, BaseMultiObjectView):
                         a_comm, created = models.Communication.objects.get_or_create(
                             source_device=Device.objects.get(id=src.id),
                             destination_device=Device.objects.get(id=dst.id),
-                            source_ip_addr=IPAddress.objects.get(address=communication_finding.source_ip + '/32'),
-                            destination_ip_addr=IPAddress.objects.get(address=communication_finding.destination_ip + '/32'),
+                            source_ip_addr=IPAddress.objects.get(
+                                address=get_ip(communication_finding.source_ip)
+                            ),
+                            destination_ip_addr=IPAddress.objects.get(
+                                address=get_ip(communication_finding.destination_ip)
+                            ),
                             destination_port=communication_finding.destination_port,
                             network_protocol=communication_finding.network_protocol,
                             transport_protocol=communication_finding.transport_protocol,
@@ -1807,8 +1812,8 @@ class CommunicationEditView(generic.ObjectEditView):
             return None
 
     def get_matched_device(self, source_ip, destination_ip):
-        source_device_by_ip = None
-        destination_device_by_ip = None
+        source_device_by_id = None
+        destination_device_by_id = None
         if source_ip:
             source_device_by_id = self.get_device_by_ip(source_ip)
         if destination_ip:
@@ -1995,7 +2000,6 @@ def CommunicationFindingImport(request):
                                                                                application_protocol=application_protocol)
     else:
         print("not authenticated")
-    return HttpResponse()    
+    return HttpResponse()
 
 ######
-
