@@ -311,7 +311,9 @@ class XGenericUriEditViewTestCase(ModelViewTestCase):
             content_object=models.Software.objects.create(name="Origin content type software"),
             uri="file:///tmp/example.json"
         )
-        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type', slug='device-type')
+        cls.device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type', slug='device-type'
+        )
         cls.software = models.Software.objects.create(name="TSoftware")
 
     def test_alter_object_with_devicetype(self):
@@ -322,7 +324,7 @@ class XGenericUriEditViewTestCase(ModelViewTestCase):
         request = RequestFactory().get("/", {'devicetype': parent.pk})
         view = views.XGenericUriEditView()
 
-        result = view.alter_object(child, request, tuple(), dict())
+        result = view.alter_object(child, request, tuple(), {})
         self.assertEqual(result.parent, parent)
 
     def test_alter_object_devicetype_exception_case(self):
@@ -332,7 +334,7 @@ class XGenericUriEditViewTestCase(ModelViewTestCase):
         request = RequestFactory().get("/", {'devicetype': -1})
         view = views.XGenericUriEditView()
 
-        result = view.alter_object(child, request, tuple(), dict())
+        result = view.alter_object(child, request, tuple(), {})
         self.assertFalse(hasattr(result, "parent"))
 
     def test_alter_object_with_software(self):
@@ -343,7 +345,7 @@ class XGenericUriEditViewTestCase(ModelViewTestCase):
         request = RequestFactory().get("/", {'software': parent.pk})
         view = views.XGenericUriEditView()
 
-        result = view.alter_object(child, request, tuple(), dict())
+        result = view.alter_object(child, request, tuple(), {})
         self.assertEqual(result.parent, parent)
 
     def test_alter_object_software_exception_case(self):
@@ -353,5 +355,63 @@ class XGenericUriEditViewTestCase(ModelViewTestCase):
         request = RequestFactory().get("/", {'software': -1})
         view = views.XGenericUriEditView()
 
-        result = view.alter_object(child, request, tuple(), dict())
+        result = view.alter_object(child, request, tuple(), {})
+        self.assertFalse(hasattr(result, "parent"))
+
+
+class ProductRelationshipEditViewTestCase(ModelViewTestCase):
+    """tests ProductRelationshipEditView"""
+    model = models.ProductRelationship
+
+    @classmethod
+    def setUpTestData(cls):
+        """class method to setup data"""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.device = Device.objects.create(
+            name='Device',
+            device_type=DeviceType.objects.create(
+                manufacturer=manufacturer, model='Device Type', slug='device-type'
+            ),
+            role=DeviceRole.objects.create(name='Role', slug='role'),
+            site=Site.objects.create(name='Site', slug='site'),
+        )
+        cls.software = models.Software.objects.create(name="TSoftware")
+        cls.product_relationship = models.ProductRelationship.objects.create(
+            source=models.Software.objects.create(name="Origin Source"),
+            destination=models.Software.objects.create(name="Origin Destination")
+        )
+
+
+    def test_alter_object_with_device(self):
+        """tests alter_object of this class with device"""
+        parent = self.device
+        child =  self.product_relationship
+        request = RequestFactory().get("/", {'device': parent.pk})
+        view = views.ProductRelationshipEditView()
+        result = view.alter_object(child, request, tuple(), {})
+        self.assertEqual(result.parent, parent)
+
+    def test_alter_object_device_exception_case(self):
+        """tests alter_object with missing device"""
+        child =  self.product_relationship
+        request = RequestFactory().get("/", {'device': -1})
+        view = views.ProductRelationshipEditView()
+        result = view.alter_object(child, request, tuple(), {})
+        self.assertFalse(hasattr(result, "parent"))
+
+    def test_alter_object_with_software(self):
+        """tests alter_object of this class with software"""
+        parent = self.software
+        child =  self.product_relationship
+        request = RequestFactory().get("/", {'software': parent.pk})
+        view = views.ProductRelationshipEditView()
+        result = view.alter_object(child, request, tuple(), {})
+        self.assertEqual(result.parent, parent)
+
+    def test_alter_object_software_exception_case(self):
+        """tests alter_object with missing software"""
+        child =  self.product_relationship
+        request = RequestFactory().get("/", {'software': -1})
+        view = views.ProductRelationshipEditView()
+        result = view.alter_object(child, request, tuple(), {})
         self.assertFalse(hasattr(result, "parent"))
