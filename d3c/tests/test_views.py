@@ -1,4 +1,5 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import RequestFactory
 from django.urls import reverse
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Platform
 from django.contrib.messages import ERROR, get_messages
@@ -6,6 +7,7 @@ from ipam.models import Service
 from utilities.testing import ModelViewTestCase, TestCase, create_tags
 
 from d3c import models
+from d3c import views
 
 
 class DeviceFindingMapTestCase(ModelViewTestCase):
@@ -294,3 +296,62 @@ class FindingImportViewTestCase(TestCase):
         self.assertHttpStatus(response, 200)
         self.assertFalse(models.DeviceFinding.objects.all().exists())
         self.assertContains(response, "Error in create Device Finding in line 2")
+
+
+class XGenericUriEditViewTestCase(ModelViewTestCase):
+    """tests XGenericUriEditView"""
+    model = models.XGenericUri
+
+    @classmethod
+    def setUpTestData(cls):
+        """class method to setup data"""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.xgenericuri = models.XGenericUri.objects.create(
+            namespace="TEST",
+            content_object=models.Software.objects.create(name="Origin content type software"),
+            uri="file:///tmp/example.json"
+        )
+        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type', slug='device-type')
+        cls.software = models.Software.objects.create(name="TSoftware")
+
+    def test_alter_object_with_devicetype(self):
+        """tests alter_object of this class with devicetype"""
+        parent = self.device_type
+        child =  self.xgenericuri
+
+        request = RequestFactory().get("/", {'devicetype': parent.pk})
+        view = views.XGenericUriEditView()
+
+        result = view.alter_object(child, request, tuple(), dict())
+        self.assertEqual(result.parent, parent)
+
+    def test_alter_object_devicetype_exception_case(self):
+        """tests alter_object with missing device type"""
+        child =  self.xgenericuri
+
+        request = RequestFactory().get("/", {'devicetype': -1})
+        view = views.XGenericUriEditView()
+
+        result = view.alter_object(child, request, tuple(), dict())
+        self.assertFalse(hasattr(result, "parent"))
+
+    def test_alter_object_with_software(self):
+        """tests alter_object of this class with software"""
+        parent = self.software
+        child =  self.xgenericuri
+
+        request = RequestFactory().get("/", {'software': parent.pk})
+        view = views.XGenericUriEditView()
+
+        result = view.alter_object(child, request, tuple(), dict())
+        self.assertEqual(result.parent, parent)
+
+    def test_alter_object_software_exception_case(self):
+        """tests alter_object with missing software"""
+        child =  self.xgenericuri
+
+        request = RequestFactory().get("/", {'software': -1})
+        view = views.XGenericUriEditView()
+
+        result = view.alter_object(child, request, tuple(), dict())
+        self.assertFalse(hasattr(result, "parent"))
