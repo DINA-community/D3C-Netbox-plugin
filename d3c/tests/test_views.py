@@ -1,4 +1,7 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth import get_user_model
+from django.contrib.messages import get_messages
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory
 from django.urls import reverse
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Platform
@@ -10,25 +13,49 @@ from d3c import models
 from d3c import views
 
 
-class DeviceFindingMapTestCase(ModelViewTestCase):
-    """TODO: DeviceFindingMap"""
-    model = models.DeviceFinding
-
-    def test_placeholder(self):
-        pass
-
-
 class DeviceFindingRejectTestCase(ModelViewTestCase):
-    """TODO: DeviceFindingReject"""
+    """tests DeviceFindingReject"""
     model = models.DeviceFinding
 
-    def test_placeholder(self):
-        pass
+    @classmethod
+    def setUpTestData(cls):
+        """class method to setup data"""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.device = Device.objects.create(
+            name='Device',
+            device_type=DeviceType.objects.create(
+                manufacturer=manufacturer, model='Device Type', slug='device-type'
+            ),
+            role=DeviceRole.objects.create(name='Role', slug='role'),
+            site=Site.objects.create(name='Site', slug='site'),
+        )
+
+    def test_get_required_permission(self):
+        """test get_required_permission of the view"""
+        self.assertEqual(views.DeviceFindingReject().get_required_permission(), 'd3c.edit_DeviceFinding')
+
+    def test_post_with_different_findings(self):
+        """creates some DeviceFindings and rejects them."""
+        finding1 = models.DeviceFinding.objects.create(source="Manual1")
+        finding2 = models.DeviceFinding.objects.create(source="Manual2", device=self.device)
+
+        view = views.DeviceFindingReject()
+        request = RequestFactory().post("/", {"pk": [finding1.pk, finding2.pk]})
+        request.session = self.client.session
+        request._messages = FallbackStorage(request)
+        response = view.post(request)
+        messages = list(get_messages(request))
+        self.assertEqual(str(messages[0]), "2 device findings rejected")
+        self.assertHttpStatus(response, 302)
 
 
 class DeviceFindingSplitTestCase(ModelViewTestCase):
-    """TODO: DeviceFindingSplit"""
+    """tests DeviceFindingSplit"""
     model = models.DeviceFinding
+
+    def test_get_required_permission(self):
+        """test get_required_permission of the view"""
+        self.assertEqual(views.DeviceFindingMap().get_required_permission(), 'd3c.edit_DeviceFinding')
 
     def test_placeholder(self):
         pass
@@ -46,8 +73,15 @@ class DeviceFindingLookupViewTestCase(ModelViewTestCase):
     """TODO: DeviceFindingLookupView"""
     model = models.DeviceFinding
 
-    def test_placeholder(self):
-        pass
+    def test_get(self):
+        """calls get method and checks messages."""
+        view = views.DeviceFindingLookupView()
+        request = RequestFactory().get("/")
+        request.session = self.client.session
+        request._messages = FallbackStorage(request)
+        result = view.get(request)
+        messages = list(get_messages(request))
+        self.assertEqual(str(messages[0]), "Device Lookup finished")
 
 
 class DeviceFindingImportViewTestCase(ModelViewTestCase):
@@ -88,6 +122,41 @@ class DeviceFindingImportViewTestCase(ModelViewTestCase):
         self.assertContains(response, '{source}')
         self.assertNotContains(response, 'IPadded')
         self.assertContains(response, '{confidence}')
+
+
+class DeviceFindingMapTestCase(TestCase):
+    """tests DeviceFindingMap"""
+
+    @classmethod
+    def setUpTestData(cls):
+        """class method to setup data"""
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.device = Device.objects.create(
+            name='Device',
+            device_type=DeviceType.objects.create(
+                manufacturer=manufacturer, model='Device Type', slug='device-type'
+            ),
+            role=DeviceRole.objects.create(name='Role', slug='role'),
+            site=Site.objects.create(name='Site', slug='site'),
+        )
+
+    def test_get_required_permission(self):
+        """test get_required_permission of the view"""
+        self.assertEqual(views.DeviceFindingMap().get_required_permission(), 'd3c.edit_DeviceFinding')
+
+    def test_post_with_different_findings(self):
+        """creates some DeviceFindings and matches them."""
+        finding1 = models.DeviceFinding.objects.create(source="Manual1")
+        finding2 = models.DeviceFinding.objects.create(source="Manual2", device=self.device)
+
+        view = views.DeviceFindingMap()
+        request = RequestFactory().post("/", {"pk": [finding1.pk, finding2.pk]})
+        request.session = self.client.session
+        request._messages = FallbackStorage(request)
+        result = view.post(request)
+        messages = list(get_messages(request))
+        self.assertIn("Mapping of record with ID", str(messages[0]))
+        self.assertEqual(str(messages[-1]), "Mapped 1 device findings")
 
 
 class CommunicationFindingMapTestCase(ModelViewTestCase):
@@ -143,6 +212,30 @@ class FindingListForDeviceViewTestCase(TestCase):
         self.assertFalse(Service.objects.filter(parent_object_id=self.device.pk).exists())
         errors = [str(m) for m in get_messages(response.wsgi_request) if m.level == ERROR]
         self.assertTrue(any('Port must be an integer' in e for e in errors), errors)
+
+    def test_hide_empty_columns(self):
+        "tests the hideEmptyColumns method."
+        view = views.FindingListForDeviceView()
+        request = RequestFactory().get("/")
+        request.user = get_user_model().objects.get(username="testuser")
+        table = view.get_table(models.DeviceFinding.objects.filter(device=self.device), request, False)
+        table.setStringNormalizerEnabled(True)
+        table.setDevice(self.device)
+        view.hideEmptyColumns(table.data, table)
+        self.assertFalse(table.columns.columns['service'].visible)
+        self.assertFalse(table.columns.columns['software'].visible)
+
+    def test_get(self):
+        """tests the get method without htmx. The table part needs the user
+        in the request, use existing 'testuser' for it. 'Device' is the name
+        for self.device. """
+        view = views.FindingListForDeviceView()
+        view.kwargs = {"pk": self.device.pk}
+        request = RequestFactory().get("/")
+        request.user = get_user_model().objects.get(username="testuser")
+        request.htmx = None
+        response = view.get(request, name="Device")
+        self.assertContains(response, f"/dcim/devices/{self.device.pk}")
 
 
 class DeviceTypeEditViewTestCase(ModelViewTestCase):
