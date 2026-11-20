@@ -55,10 +55,7 @@ class DeviceFindingSplitTestCase(ModelViewTestCase):
 
     def test_get_required_permission(self):
         """test get_required_permission of the view"""
-        self.assertEqual(views.DeviceFindingMap().get_required_permission(), 'd3c.edit_DeviceFinding')
-
-    def test_placeholder(self):
-        pass
+        self.assertEqual(views.DeviceFindingSplit().get_required_permission(), 'd3c.edit_DeviceFinding')
 
 
 class DeviceFindingApplyTestCase(ModelViewTestCase):
@@ -70,7 +67,7 @@ class DeviceFindingApplyTestCase(ModelViewTestCase):
 
 
 class DeviceFindingLookupViewTestCase(ModelViewTestCase):
-    """TODO: DeviceFindingLookupView"""
+    """Test case of DeviceFindingLookupView"""
     model = models.DeviceFinding
 
     def test_get(self):
@@ -85,7 +82,7 @@ class DeviceFindingLookupViewTestCase(ModelViewTestCase):
 
 
 class DeviceFindingImportViewTestCase(ModelViewTestCase):
-    """ Automatic tests for DeviceFinding import"""
+    """Automatic tests for DeviceFinding import"""
     model = models.DeviceFinding
 
     def test_validate_with_data(self):
@@ -125,7 +122,7 @@ class DeviceFindingImportViewTestCase(ModelViewTestCase):
 
 
 class DeviceFindingMapTestCase(TestCase):
-    """tests DeviceFindingMap"""
+    """Test case of the DeviceFindingMap"""
 
     @classmethod
     def setUpTestData(cls):
