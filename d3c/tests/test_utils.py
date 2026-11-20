@@ -1,6 +1,13 @@
 from django.test import TestCase
 
-from d3c.utils import get_ip, parse_ip, get_mac, validate_cpe, ValidationError
+from d3c.utils import (
+    get_ip,
+    parse_ip,
+    get_mac,
+    validate_cpe,
+    validate_purl,
+    ValidationError,
+)
 
 
 class ParseNmapTestCase(TestCase):
@@ -48,7 +55,7 @@ class IpMacHelpersTestCase(TestCase):
 
 
 class ValidateCpeTestCase(TestCase):
-    """TODO: validate_cpe"""
+    """tests validate_cpe. Three cases: valid, invalid and 5+, less 5"""
 
     def test_validate_cpe(self):
         validate_cpe("cpe:2.3:a:openssl:openssl:3.3.1:*:*:*:*:*:*:*")
@@ -58,10 +65,14 @@ class ValidateCpeTestCase(TestCase):
 
 
 class ValidatePurlTestCase(TestCase):
-    """TODO: validate_purl"""
+    """tests validate_purl: Three cases: valid, invalid and 7+, less than 7"""
 
-    def test_placeholder(self):
-        pass
+    def test_validate_purl(self):
+        """tests validate_purl. """
+        validate_purl("pkg:example.com/bla/bla.json")
+        with self.assertRaises(ValidationError):
+            validate_purl("bla0123045")
+        validate_purl("012345")
 
 
 class ValidateFhTestCase(TestCase):
