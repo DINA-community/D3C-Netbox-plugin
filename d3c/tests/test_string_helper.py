@@ -1,6 +1,11 @@
 from django.test import TestCase
 
-from d3c.string_helper import disassemble_role, get_specific_role
+from d3c.string_helper import (
+    disassemble_role,
+    get_specific_role,
+    check_choice,
+    router_choices
+)
 
 class DisassembleRoleTestCase(TestCase):
     """tests disassemble_role"""
@@ -37,17 +42,31 @@ class GetSpecificRoleTestCase(TestCase):
 
 
 class CheckChoiceTestCase(TestCase):
-    """TODO: check_choice"""
+    """tests check_choice"""
 
-    def test_placeholder(self):
-        pass
+    def test_check_choice(self):
+        """tests the different cases."""
+        choices = [("testa", 0), ("testb", 1)]
+        self.assertEqual(check_choice(choices, "testA"), "testa")
+        self.assertEqual(check_choice(choices, "testB"), "testb")
+        self.assertIsNone(check_choice(choices, "testC"))
 
 
 class RouterChoicesTestCase(TestCase):
-    """TODO: router_choices"""
+    """tests router_choices"""
 
-    def test_placeholder(self):
-        pass
+    def test_router_choices(self):
+        """tests the different cases."""
+        oracle = (
+            ("yes", "true", [(0, "Yes")]),
+            ("no", "false", [(0, "No")]),
+            ("yes", "maybe", [(0, "Yes"), (1, "No")]),
+            ("no", "m", [(0, "No"), (1, "Yes")]),
+            ("test", "maybe", [(0, "Test"), (1, "Yes"), (2, "No")]),
+            ("test", "test", None)
+        )
+        for item in oracle:
+            self.assertEqual(router_choices(item[0], item[1]), item[2])
 
 
 class GetSugTestCase(TestCase):
