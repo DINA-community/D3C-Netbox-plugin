@@ -39,7 +39,18 @@ Changes to frontend code (HTML, JS, CSSS) don't need a restart and only a reload
 
 ## Code checks
 
-Run `make lint`
+```bash
+uv run `make lint`
+grep -Er "E[0-9]{4}" ./flake8.log  | grep -v "E0401"
+```
+
+Running on a single file.
+
+```bash
+ pylint <filename>  # | grep -E "E[0-9]{4}"
+```
+
+If you want to search for specific output like errors only.
 
 ## Running tests
 
