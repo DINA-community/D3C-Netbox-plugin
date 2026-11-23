@@ -7,6 +7,8 @@ from .models import DeviceFinding, Software, Communication, \
     CommunicationFinding, Mapping, ProductRelationship, XGenericUri, Hash, FileHash, FILEHASH_ALGO
 from .utils import parse_csv, parse_nmap, validate_cpe, validate_purl, validate_fh, validate_uri
 from dcim.models.devices import Device, DeviceType, Manufacturer, Platform
+from dcim.models.modules import ModuleType
+from dcim.forms.model_forms import ModuleTypeForm
 from ipam.models import IPAddress
 from django import forms
 from django.forms import ModelForm
@@ -523,18 +525,41 @@ class FindingImportForm(forms.Form):
 
     title = "Importing DeviceFindings"
     fieldNames = ('source', 'confidence',
-                  'description', 'device_role', 'serial_number', 'device_name', 'status', 'site', 'rack', 'location',
-                  'device_type', 'serial_number', 'device_role', 'is_safety_critical',
-                  'ip_address', 'mac_address', 'network_protocol', 'transport_protocol', 'application_protocol', 'port',
-                  'is_router', 'manufacturer', 'oui', 'device_family', 'part_number',
-                  'hardware_version', 'hardware_cpe', 'software_name', 'is_firmware', 'version', 'exposure')
+                  'site',
+                  'rack',
+                  'location',
+                  'device_name',
+                  'description',
+                  'device_role',
+                  'serial_number', 
+                  'is_safety_critical',
+                  'exposure',
+                  'ip_address', 
+                  'mac_address',
+                  'status',
+                  'manufacturer',
+                  'device_type',
+                  'device_family',
+                  'part_number',
+                  'hardware_version',
+                  'hardware_cpe', 
+                  'network_protocol',
+                  'transport_protocol',
+                  'application_protocol',
+                  'port',
+                  # 'is_router', outdated
+                  'oui', 
+                  'software_name',
+                  'is_firmware',
+                  'version'
+                  )
     templates = {}
     csv_headers = {}
     csv_records = []
 
     step = 0
     step_field = forms.IntegerField(widget=forms.HiddenInput(), initial=1)
-    file_name = forms.CharField(widget=forms.HiddenInput(), initial='')
+    file_name = forms.CharField(widget=forms.HiddenInput(), initial='', required=False)
     data_string = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'font-monospace form-control',
@@ -945,3 +970,11 @@ class MyDeviceTypeForm(NetBoxModelForm):
                 'accept': DEVICETYPE_IMAGE_FORMATS
             }),
         }
+
+class MyModuleTypeForm(ModuleTypeForm):
+    class Meta:
+        model = ModuleType
+        fields = [
+            'profile', 'manufacturer', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
+            'owner', 'comments', 'tags',
+        ]

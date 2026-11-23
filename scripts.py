@@ -3,11 +3,12 @@
 #####################################################
 #
 #  Projekt: BSI-507
-#  NetBox DDDC Plugin
+#  NetBox D3C Plugin
 #  file: scripts.py
 #
 #####################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -15,7 +16,7 @@ from dcim.choices import DeviceStatusChoices, SiteStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Interface
 from ipam.models import IPAddress, Service
 from extras.scripts import *
-from d3c.models import Finding, DeviceExtra, DDDCAdmin, Communication
+from d3c.models import Finding, DeviceExtra, D3CAdmin, Communication
 from extras.models import Tag
 
 mapping_table = {'source': 'ml-module',
@@ -171,10 +172,10 @@ class ImportDevice(Script):
                     for a_server in a_service['server']:
                         for a_serv in a_server['services']:
                             new_service, created = Service.objects.get_or_create(
-                                device_id=device_id,
+                                parent_object_type=ContentType.objects.get_for_model(Device),
+                                parent_object_id=device_id,
                                 name=a_serv['application-protocol'],
-                                protocol=a_server['transport-protocol'],
-                                ports=[int(a_serv['port'])])
+                                port_mappings=[f"{a_server['transport-protocol'].lower()}/{int(a_serv['port'])}"])
                             if created:
                                 new_service.ipaddresses.add(an_ip)
                                 new_service.save()
