@@ -2,7 +2,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from django.test import TestCase
 from ipam.models import IPAddress, Service
 
-from d3c.device_update import add_service
+from d3c.device_update import add_service, is_mac_equal, site_get_or_create
 
 
 class AddSoftwareTestCase(TestCase):
@@ -83,10 +83,15 @@ class ChangeDeviceTypeTestCase(TestCase):
 
 
 class SiteGetOrCreateTestCase(TestCase):
-    """TODO: site_get_or_create"""
+    """tests site_get_or_create"""
 
-    def test_placeholder(self):
-        pass
+    def test_site_get_or_create(self):
+        """tests site_get_or_create: non-exist, exists"""
+        count_sites = Site.objects.count()
+        self.assertTrue(site_get_or_create("TestSite"))
+        self.assertEqual(Site.objects.count(), count_sites + 1)
+        self.assertTrue(site_get_or_create("TestSite"))
+        self.assertEqual(Site.objects.count(), count_sites + 1)
 
 
 class ChangeDeviceRackLocationTestCase(TestCase):
@@ -104,7 +109,10 @@ class ChangeDeviceFieldsTestCase(TestCase):
 
 
 class IsMacEqualTestCase(TestCase):
-    """TODO: is_mac_equal"""
+    """tests is_mac_equal"""
 
-    def test_placeholder(self):
-        pass
+    def test_is_mac_equal(self):
+        """tests the cases: same, case insensitive, not eq."""
+        self.assertTrue(is_mac_equal("00:1A:2B:3C:4D:5E", "00:1A:2B:3C:4D:5E"))
+        self.assertTrue(is_mac_equal("00:1a:2b:3C:4D:5E", "00:1A:2B:3c:4d:5e"))
+        self.assertFalse(is_mac_equal("00:1A:2B:3C:4D:5E", "00:FF:2B:3C:4D:5E"))
