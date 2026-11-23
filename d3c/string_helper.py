@@ -6,7 +6,7 @@ from .utils import time_start, time_end
 import time
 
 
-def disassebmle_role(general_role):
+def disassemble_role(general_role):
     """
     This function disassembles Device Roles used by a software called Asset Manager into the specific roles
     predefined during the initialization of the D3C-Plugin.
@@ -26,15 +26,15 @@ def disassebmle_role(general_role):
         return None
 
 
-def get_specific_role(current_role, general_role, add_curr_role=True):
+def get_specific_role(current_role, general_role):
     """
     Returns the specific roles given a general role.
     """
-    result_role = disassebmle_role(general_role)
+    result_role = disassemble_role(general_role)
     result_list = [(0, current_role), ] if current_role else []
     if result_role:
         for idx, x in enumerate(result_role, 1):
-            if idx != current_role:  # check for duplicates
+            if x != current_role:  # check for duplicates
                 result_list.append((idx, x))
     return result_list
 

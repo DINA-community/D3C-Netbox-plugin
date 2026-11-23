@@ -11,7 +11,7 @@ from .models import (DeviceFinding, Software, Communication, CommunicationFindin
                      Mapping, ProductRelationship, XGenericUri, FileHash, Hash)
 from .device_update import get_current_value_for_device
 from .string_checker import StringChecker
-from .string_helper import disassebmle_role
+from .string_helper import disassemble_role
 from .string_normalizer import StringNormalizer
 from .utils import time_start, time_end
 from django.contrib.contenttypes.models import ContentType
@@ -319,7 +319,7 @@ class DeviceFindingForDeviceTable(NetBoxTable):
         if colName not in self.normalizedFields:
             return dfltValue
         if colName == 'device_role':
-            value = disassebmle_role(dfltValue)
+            value = disassemble_role(dfltValue)
             if value:
                 finalValue = [dfltValue]
                 for entry in value:
