@@ -16,18 +16,18 @@ Additionally, this repository contains files from the community-driven Docker im
 
 ### Set the proper netbox docker version
 
-D3C is only compatible with NetBox 4.7 and therefore with netbox-docker 5.1.1.
+D3C is only compatible with NetBox 4.7 and therefore with netbox-docker 5.1.2.
 The exact tag to use is the second part of `NETBOX_DOCKER_VERSION` in `.env`.
 For a new install, clone from that tag:
 
    ```bash
-   git clone -b 5.1.1 https://github.com/netbox-community/netbox-docker.git
+   git clone -b 5.1.2 https://github.com/netbox-community/netbox-docker.git
    ```
 
 For existing installations, switch to that tag before continuing:
 
    ```bash
-   git checkout 5.1.1
+   git checkout 5.1.2
    ```
 
 ### Add plugin
