@@ -660,8 +660,9 @@ class FindingImportForm(forms.Form):
         """
         try:
             headers, records = parse_nmap(data.strip())
-        except ParseError:
-            raise forms.ValidationError("Data is not XML.", code="invalid")
+        except ParseError as err:
+            self.csv_headers_filled = {}
+            raise forms.ValidationError("Data is not XML: " + str(err), code="invalid")
 
         # Set CSV headers for reference by the model form
         self.csv_headers = headers
