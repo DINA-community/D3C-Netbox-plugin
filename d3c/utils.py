@@ -41,7 +41,7 @@ def parse_nmap(data):
                 parseElems(elements, headers, record)
                 if record:
                     records.append(record)
-        return headers, records
+    return headers, records
 
 
 def parseElems(elements, headers, record):
